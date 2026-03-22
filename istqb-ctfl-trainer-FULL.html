@@ -167,9 +167,9 @@ main{flex:1;padding:24px 20px;max-width:880px;margin:0 auto;width:100%}
     <p>106 official questions · Set A &amp; Set B · Timed exam · Study mode · Wrong-answer retry</p>
   </div>
   <div class="settabs">
-    <button class="stab on" onclick="selSet('all',this)">All (106)</button>
-    <button class="stab" onclick="selSet('A',this)">Set A (66)</button>
-    <button class="stab" onclick="selSet('B',this)">Set B (40)</button>
+    <button class="stab on" onclick="selectSet('all',this)">All (106)</button>
+    <button class="stab" onclick="selectSet('A',this)">Set A (66)</button>
+    <button class="stab" onclick="selectSet('B',this)">Set B (40)</button>
   </div>
   <div class="stats">
     <div class="sbox b"><div class="v" id="st-total">106</div><div class="l">Questions</div></div>
@@ -348,7 +348,7 @@ function showScr(name){
   window.scrollTo(0,0);
 }
 
-function selSet(s,btn){
+function selectSet(s,btn){
   selSet=s;
   document.querySelectorAll('.stab').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
