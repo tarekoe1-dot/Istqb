@@ -504,7 +504,6 @@ function renderQ(){
     if(ans.expl){
       fbBody.innerHTML=ans.expl;
     }else{
-      fbBody.innerHTML='<div class="expl-loading"><div class="spin"></div>Generating explanation…</div>';
       fetchExplanation(q,ans,fbBody);
     }
   }
@@ -519,27 +518,19 @@ function renderQ(){
 }
 
 async function fetchExplanation(q,ans,el){
-  const correct=q.correct.map(l=>{const o=q.options.find(x=>x.l===l);return `${l.toUpperCase()}) ${o?o.t:''}`;}).join('; ');
-  const prompt=`ISTQB CTFL exam question (LO: ${q.lo}, K${q.k}):
-"${q.stem}"
-Options: ${q.options.map(o=>`${o.l}) ${o.t}`).join(' | ')}
-Correct answer: ${correct}
-
-In 2-3 short sentences, explain WHY the correct answer is right and briefly note what makes the distractors wrong. Be specific to ISTQB syllabus concepts. Plain text only, no markdown.`;
-  try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
-    });
-    const d=await r.json();
-    const text=d.content?.map(c=>c.text||'').join('')||'Explanation unavailable.';
-    ans.expl=`<div style="line-height:1.7">${text}</div>`;
+  if(!q.expl){
+    ans.expl='<div style="color:var(--txt3);font-style:italic">No explanation available.</div>';
     el.innerHTML=ans.expl;
-  }catch(e){
-    ans.expl='<div style="color:var(--txt3);font-style:italic">Explanation unavailable offline.</div>';
-    el.innerHTML=ans.expl;
+    return;
   }
+  const html=q.options.map(o=>{
+    const txt=q.expl[o.l]||'';
+    const isCor=q.correct.includes(o.l);
+    const color=isCor?'var(--ok)':'var(--txt)';
+    return `<div style="margin-bottom:8px;line-height:1.6"><strong style="color:${color}">${o.l.toUpperCase()})</strong> ${txt}</div>`;
+  }).join('');
+  ans.expl=html;
+  el.innerHTML=html;
 }
 
 function fmt(t){if(!t)return '';return t.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');}
