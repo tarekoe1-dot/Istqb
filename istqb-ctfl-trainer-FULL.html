@@ -194,14 +194,12 @@ main{flex:1;padding:24px 20px;max-width:880px;margin:0 auto;width:100%}
 .bm-btn{background:none;border:none;cursor:pointer;font-size:1.1rem;padding:4px;line-height:1;transition:transform .2s}
 .bm-btn:hover{transform:scale(1.2)}
 /* FLASHCARD */
-.fc-card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:32px;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:all .3s;margin-bottom:16px;position:relative}
-.fc-card:hover{border-color:var(--acc)}
-.fc-front{font-size:1rem;font-weight:500;line-height:1.65;color:var(--txt)}
-.fc-back{display:none}
-.fc-card.flipped .fc-front{display:none}
-.fc-card.flipped .fc-back{display:block;font-size:.9rem;color:var(--txt2);line-height:1.7}
-.fc-hint{font-size:.74rem;color:var(--txt3);margin-top:12px}
-.fc-actions{display:flex;gap:10px;justify-content:center}
+
+
+
+
+
+
 </style>
 
 <div class="app">
@@ -252,10 +250,7 @@ main{flex:1;padding:24px 20px;max-width:880px;margin:0 auto;width:100%}
       <div class="mico">🎯</div><h3>Custom Quiz</h3>
       <p>Filter by K-level, chapter, or set.</p>
     </div>
-    <div class="mcard" style="cursor:pointer" onclick="startFlashcards()" onmouseover="this.style.borderColor='var(--acc2)'" onmouseout="this.style.borderColor='var(--bor)'">
-      <div class="mico" style="background:rgba(123,94,167,.12)">🃏</div><h3>Flashcard Mode</h3>
-      <p>Quick-fire question &amp; answer cards. Tap to flip.</p>
-    </div>
+
   </div>
   <div class="sset">
     <h3>Settings</h3>
@@ -408,31 +403,6 @@ main{flex:1;padding:24px 20px;max-width:880px;margin:0 auto;width:100%}
   <div class="dash-card">
     <h3>Weak Spots <span style="font-size:.72rem;color:var(--txt3);font-weight:400;text-transform:none;letter-spacing:0">(lowest scoring learning objectives)</span></h3>
     <div class="weak-list" id="ds-weak"><div class="empty-dash">Answer some questions to identify weak spots</div></div>
-  </div>
-</div>
-
-<!-- FLASHCARD MODE -->
-<div class="scr" id="scr-fc">
-  <div class="q-header">
-    <div class="q-meta">
-      <span class="qn" id="fc-pos">Card 1 / 10</span>
-      <span class="tag lo" id="fc-lo"></span>
-    </div>
-    <button class="btn bg" style="padding:6px 11px;font-size:.74rem" onclick="showScr('home')">✕ Exit</button>
-  </div>
-  <div class="ptrack"><div class="pfill" id="fc-pfill" style="width:0%"></div></div>
-  <div class="fc-card" id="fc-card" onclick="flipCard()">
-    <div class="fc-front" id="fc-front"></div>
-    <div class="fc-back" id="fc-back"></div>
-    <div class="fc-hint" id="fc-hint">Tap to reveal answer</div>
-  </div>
-  <div class="fc-actions">
-    <button class="btn bg" onclick="fcNav(-1)" id="fc-prev">← Prev</button>
-    <button class="btn bp" onclick="flipCard()" id="fc-flip">Flip Card</button>
-    <button class="btn bg" onclick="fcNav(1)" id="fc-next">Next →</button>
-  </div>
-  <div style="text-align:center;margin-top:14px">
-    <button class="btn bs" style="font-size:.8rem;padding:7px 16px" onclick="startStudy()">Switch to Study Mode →</button>
   </div>
 </div>
 
@@ -864,49 +834,6 @@ function getStreak(){
     else break;
   }
   return streak;
-}
-
-// ═══════════════════════════════════
-// FLASHCARDS
-// ═══════════════════════════════════
-let fcQs=[], fcIdx=0, fcFlipped=false;
-function startFlashcards(){
-  let qs=getSetQs(selSet);
-  if(state.settings.shuffle) qs=shuf(qs);
-  fcQs=qs; fcIdx=0; fcFlipped=false;
-  showScr('fc');
-  renderFC();
-}
-function renderFC(){
-  const q=fcQs[fcIdx];
-  const tot=fcQs.length;
-  document.getElementById('fc-pos').textContent=`Card ${fcIdx+1} / ${tot}`;
-  document.getElementById('fc-lo').textContent=q.lo;
-  document.getElementById('fc-pfill').style.width=((fcIdx+1)/tot*100)+'%';
-  const card=document.getElementById('fc-card');
-  card.classList.remove('flipped');
-  fcFlipped=false;
-  document.getElementById('fc-front').innerHTML=fmt(q.stem);
-  // Back: correct answer + explanation
-  const corrOpts=q.correct.map(l=>{
-    const o=q.options.find(x=>x.l===l);
-    return `<strong style="color:var(--ok)">${l.toUpperCase()})</strong> ${o?o.t:''}`;
-  }).join('<br>');
-  const explHtml=q.expl?q.correct.map(l=>`<div style="margin-top:10px;font-size:.82rem;color:var(--txt2)">${q.expl[l]||''}</div>`).join(''):'';
-  document.getElementById('fc-back').innerHTML=corrOpts+explHtml;
-  document.getElementById('fc-hint').style.display='';
-  document.getElementById('fc-prev').disabled=fcIdx===0;
-  document.getElementById('fc-next').style.display=fcIdx===tot-1?'none':'';
-}
-function flipCard(){
-  const card=document.getElementById('fc-card');
-  fcFlipped=!fcFlipped;
-  card.classList.toggle('flipped',fcFlipped);
-  document.getElementById('fc-hint').style.display=fcFlipped?'none':'';
-}
-function fcNav(dir){
-  fcIdx=Math.max(0,Math.min(fcQs.length-1,fcIdx+dir));
-  renderFC();
 }
 
 // ═══════════════════════════════════
